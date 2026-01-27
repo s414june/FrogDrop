@@ -1,8 +1,8 @@
 <template>
     <div class="flex flex-col w-full h-full">
-        <section class="flex justify-center">
+        <section class="flex justify-start">
             <input type="button" value="Back"
-                class="text-xl text-center cursor-pointer border-blue-500 text-blue-500 border-1 m-2 rounded-full px-3 hover:bg-blue-100"
+                class="text-center cursor-pointer border-gray-400 text-gray-400 border-1 m-2 rounded-full px-3 hover:bg-gray-100"
                 @click="back()" />
         </section>
         <div class="flex flex-col justify-center items-center text-blue-500">
@@ -11,22 +11,35 @@
                 <!-- mock code temporarily -->
                 <p class="text-3xl font-bold my-2">1111</p>
             </article>
-            <section class="flex no-wrap overflow-x-auto w-full justify-start items-center">
-                <template v-if="filesExtendPreview && filesExtendPreview.length > 0">
-                    <div v-for="value in filesExtendPreview" :key="value.file.name"
-                        class="bg-gray-200 rounded-md text-gray-800 p-2 m-2 w-3/4 text-center flex flex-col h-full justify-center items-center">
-                        <div class="checkerboard">
-                            <img :src="value.preview" :alt="value.file.name" v-if="value.preview"
-                                class="max-h-48 mx-auto rounded-md grow" />
+            <section class="overflow-x-auto w-full">
+                <div class="flex no-wrap w-full justify-center items-center w-[1px]">
+                    <template v-if="filesExtendPreview && filesExtendPreview.length > 0">
+                        <div v-for="value in filesExtendPreview" :key="value.file.name"
+                            class="grow bg-gray-200 rounded-md text-gray-800 p-2 mx-1 first:ms-0 last:me-0 text-center flex flex-col h-full justify-center items-center width-card relative">
+                            <div class="grow flex justify-center items-center">
+                                <div class="checkerboard">
+                                    <img :src="value.preview" :alt="value.file.name" v-if="value.preview"
+                                        class="max-h-48 mx-auto rounded-md grow" />
+                                </div>
+                            </div>
+                            <div class="h-[50px] overflow-x-auto text-nowrap w-full">
+                                <p class="font-bold">{{ value.file.name }}</p>
+                                <p class="text-sm">{{ (value.file.size / 1024).toFixed(2) }} KB</p>
+                            </div>
                         </div>
-                        <p class="font-bold">{{ value.file.name }}</p>
-                        <p class="text-sm">{{ (value.file.size / 1024).toFixed(2) }} KB</p>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </section>
-            <section>
+            <section class="mt-5 text-center">
                 <!-- v-for (Receiver) -->
-                Receiver
+                <p>Receiver</p>
+                <div class="flex">
+                    <p class="text-2xl font-bold my-2">🐸 FrogUser</p>
+                    <button
+                        class="cursor-pointer border-blue-500 text-blue-500 border-1 m-2 rounded-full px-3 hover:bg-blue-100">
+                        {{ sendButtonText }}
+                    </button>
+                </div>
             </section>
         </div>
     </div>
@@ -41,6 +54,8 @@ import { useCommonStore } from '../stores/common';
 const commonStore = useCommonStore();
 
 const filesExtendPreview = ref<({ file: File; preview?: string })[]>();
+const screenWidth = ref(0);
+const sendButtonText = ref('Send!');
 
 const back = () => {
     router.push({ name: 'home' });
@@ -56,6 +71,11 @@ const createImagePreview = (file: File): Promise<string> => {
 }
 
 onMounted(async () => {
+    screenWidth.value = window.innerWidth;
+    if (commonStore.files.length === 0) {
+        router.push({ name: 'home' });
+        return;
+    }
     filesExtendPreview.value = await Promise.all(commonStore.files.map(async (file) => {
         let preview: string | undefined;
         if (file.type.startsWith('image/')) {
@@ -90,6 +110,17 @@ onMounted(async () => {
                 transparent 0);
         background-size: 16px 16px;
         pointer-events: none;
+    }
+}
+
+.width-card {
+    height: -webkit-fill-available;
+    min-width: calc((100dvw - var(--spacing)*15)/2 - 1rem);
+    max-width: calc((100dvw - var(--spacing)*15)/2 - 1rem);
+
+    @media (min-width: 640px) {
+        min-width: calc((100dvw - var(--spacing)*15)/4 - 1rem);
+        max-width: calc((100dvw - var(--spacing)*15)/4 - 1rem);
     }
 }
 </style>
