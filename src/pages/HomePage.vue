@@ -1,8 +1,8 @@
 <template>
     <div class="flex flex-col w-full">
         <section class="flex justify-center">
-            <input ref="fileInputRef" :value="fileInput" id="FileInput" type="file" multiple class="hidden">
-            </input>
+            <input ref="fileInputRef" :value="fileInput" id="FileInput" type="file" multiple class="hidden"
+                @change="onFileChange"></input>
             <input type="button" value="Select for Send"
                 class="text-xl text-center cursor-pointer border-blue-500 text-blue-500 border-1 m-2 rounded-full px-3 hover:bg-blue-100"
                 @click="fileInputRef?.click()" />
@@ -26,7 +26,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import router from '../router';
+import { useCommonStore } from '../stores/common';
 
+const commonStore = useCommonStore();
 const fileInputRef = ref<HTMLInputElement>(null!);
 const fileInput = ref<FileList | null>(null);
 const code = ref('');
@@ -36,4 +39,10 @@ const result = ref({
     message: '',
     color: 'green',
 })
+
+const onFileChange = (e: Event) => {
+    const files = (e.target as HTMLInputElement).files;
+    commonStore.files = files ? Array.from(files) : [];
+    router.push({ name: 'send' });
+}
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <main class="h-screen flex flex-col">
+  <main class="h-screen flex flex-col bg-white">
     <header class="p-2 bg-blue-500">
       <p class="text-white">FrogDrop</p>
     </header>
@@ -17,7 +17,6 @@
   </main>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useCommonStore } from './stores/common';
 
 const commonStore = useCommonStore();

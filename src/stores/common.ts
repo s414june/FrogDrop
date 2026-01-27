@@ -6,13 +6,13 @@ export const useCommonStore = defineStore('common', {
     state: () => ({
         clientId: '' as string,
         displayName: '' as string,
-        fallbackName: '' as string,   // 👈 動物名
         deviceHint: 'Unknown' as DeviceHint,
+        files: [] as File[],
     }),
     getters: {
         resolvedName(state) {
             const name = state.displayName?.trim()
-            return name ? name : state.fallbackName
+            return name ? name : state.clientId
         },
     },
     actions: {
