@@ -10,7 +10,8 @@
                 <p>You are</p>
                 <!-- mock code temporarily -->
                 <p class="text-5xl font-bold my-10">#1</p>
-                <p class="text-2xl font-bold my-2">{{ commonStore.displayName }}({{ commonStore.deviceHint }})</p>
+                <p class="text-2xl font-bold">{{ commonStore.displayName }}</p>
+                <p>({{ commonStore.deviceHint }})</p>
             </article>
             <section class="mt-7 text-center">
                 <p :class="[result.color]">{{ result.message }}</p>
@@ -32,25 +33,33 @@ const result = ref({
     color: 'text-gray-400',
 })
 
+const getBrowserHint = (): string => {
+    const ua = navigator.userAgent
+    if (ua.includes('Edg')) return 'Edge'
+    if (ua.includes('Chrome')) return 'Chrome'
+    if (ua.includes('Safari')) return 'Safari'
+    if (ua.includes('Firefox')) return 'Firefox'
+    return ''
+}
+
+
 const getDeviceHint = (): string => {
+    const browserHint = getBrowserHint()
+
     const uaData = (navigator as any).userAgentData
     if (!uaData) return fallbackFromUA()
-
-    const platform = uaData.platform.toLowerCase()
-
-    if (platform.includes('iphone')) return uaData.platform
-    if (platform.includes('ipad')) return uaData.platform
-    if (platform.includes('android')) return uaData.platform
-    if (platform.includes('mac') || platform.includes('win') || platform.includes('linux')) {
-        return uaData.platform
-    }
-
-    return 'Unknown'
+    return uaData.platform + (browserHint ? ` · ${browserHint}` : '')
 }
 
 const fallbackFromUA = (): string => {
     const ua = navigator.userAgent.toLowerCase()
-    return ua
+    if (ua.includes('iphone')) return 'iPhone'
+    if (ua.includes('ipad')) return 'iPad'
+    if (ua.includes('android')) return 'Android'
+    if (ua.includes('macintosh')) return 'MacOS'
+    if (ua.includes('windows')) return 'Windows'
+    if (ua.includes('linux')) return 'Linux'
+    return 'Unknown'
 }
 
 const back = () => {
