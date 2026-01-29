@@ -1,29 +1,28 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 type DeviceHint = 'iPhone' | 'iPad' | 'Android' | 'Desktop' | 'Unknown'
 
-export const useCommonStore = defineStore('common', {
-    state: () => ({
-        clientId: '' as string,
-        displayName: '' as string,
-        deviceHint: 'Unknown' as DeviceHint,
-        files: [] as File[],
-    }),
-    getters: {
-        resolvedName(state) {
-            const name = state.displayName?.trim()
-            return name ? name : state.clientId
+export const useCommonStore = defineStore('common', () => {
+    const displayName = ref<string>('🐸 FrogDrop Player')
+    const deviceHint = ref<DeviceHint>('Unknown')
+    const code = ref<string>('')
+    const files = ref<File[]>([])
+
+    return {
+        displayName,
+        deviceHint,
+        files,
+        code,
+    }
+}, {
+    persist: [
+        {
+            pick: ['displayName', 'deviceHint'],
+            storage: localStorage,
         },
-    },
-    actions: {
-        init() {
-            // generate clientId / fallbackName / deviceHint if missing
-        },
-        setDisplayName(name: string) {
-            this.displayName = name
-        },
-    },
-    persist: {
-        pick: ['displayName'],
-    },
+        {
+            pick: ['files']
+        }
+    ]
 })

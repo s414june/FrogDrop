@@ -1,12 +1,12 @@
 <template>
     <div class="flex flex-col w-full h-full">
-        <section class="flex justify-start">
+        <section class="flex justify-start absolute">
             <input type="button" value="Back"
-                class="text-center cursor-pointer border-gray-400 text-gray-400 border-1 m-2 rounded-full px-3 hover:bg-gray-100"
+                class="text-center cursor-pointer border-gray-400 text-gray-400 border-1 rounded-full px-3 hover:bg-gray-100"
                 @click="back()" />
         </section>
         <div class="flex flex-col justify-center items-center text-blue-500">
-            <article class="text-center my-2">
+            <article class="text-center">
                 <p>Sender Code</p>
                 <!-- mock code temporarily -->
                 <p class="text-3xl font-bold my-2">1111</p>
@@ -30,16 +30,21 @@
                     </template>
                 </div>
             </section>
-            <section class="mt-5 text-center">
+            <section class="mt-7 text-center">
                 <!-- v-for (Receiver) -->
                 <p>Receiver</p>
-                <div class="flex">
-                    <p class="text-2xl font-bold my-2">🐸 FrogUser</p>
-                    <button
-                        class="cursor-pointer border-blue-500 text-blue-500 border-1 m-2 rounded-full px-3 hover:bg-blue-100">
-                        {{ sendButtonText }}
-                    </button>
-                </div>
+                <table class="mx-auto text-start">
+                    <tr v-for="value, index in receivers" :key="index">
+                        <td class="text-2xl font-bold p-2">#{{ index + 1 }}</td>
+                        <td class="text-2xl font-bold p-2">{{ value.name }}</td>
+                        <td class="p-2">
+                            <button
+                                class="cursor-pointer border-blue-500 text-blue-500 border-1 rounded-full px-3 hover:bg-blue-100">
+                                {{ sendButtonTextData[value.sendStatus] }}
+                            </button>
+                        </td>
+                    </tr>
+                </table>
             </section>
         </div>
     </div>
@@ -51,11 +56,27 @@ import { onMounted, ref } from 'vue';
 import router from '../router';
 import { useCommonStore } from '../stores/common';
 
+interface IReceiver {
+    name: string;
+    id: string;
+    sendStatus: 'default' | 'sending' | 'sent';
+}
+
 const commonStore = useCommonStore();
 
 const filesExtendPreview = ref<({ file: File; preview?: string })[]>();
 const screenWidth = ref(0);
-const sendButtonText = ref('Send!');
+const sendButtonTextData = ref({
+    default: 'Send!',
+    sending: 'Sending...',
+    sent: 'Sent!',
+});
+
+const receivers = ref<IReceiver[]>([
+    { name: '🐸 FrogUser', id: 'frog123', sendStatus: 'default' },
+    { name: '🐱 CatUser', id: 'cat456', sendStatus: 'default' },
+    // more receivers...
+]);
 
 const back = () => {
     router.push({ name: 'home' });
