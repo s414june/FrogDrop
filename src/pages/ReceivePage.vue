@@ -21,7 +21,7 @@
 
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import router from '../router';
 import { useCommonStore } from '../stores/common';
 
@@ -32,9 +32,34 @@ const result = ref({
     color: 'text-gray-400',
 })
 
+const getDeviceHint = (): string => {
+    const uaData = (navigator as any).userAgentData
+    if (!uaData) return fallbackFromUA()
+
+    const platform = uaData.platform.toLowerCase()
+
+    if (platform.includes('iphone')) return uaData.platform
+    if (platform.includes('ipad')) return uaData.platform
+    if (platform.includes('android')) return uaData.platform
+    if (platform.includes('mac') || platform.includes('win') || platform.includes('linux')) {
+        return uaData.platform
+    }
+
+    return 'Unknown'
+}
+
+const fallbackFromUA = (): string => {
+    const ua = navigator.userAgent.toLowerCase()
+    return ua
+}
+
 const back = () => {
     router.push({ name: 'home' });
 }
+
+onMounted(() => {
+    commonStore.deviceHint = getDeviceHint();
+});
 </script>
 
 <style scoped lang="scss"></style>
