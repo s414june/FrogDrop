@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col w-full h-full">
+    <div class="flex flex-col w-full h-full" @click="clearResult()">
         <section class="flex justify-center items-end half-height-without-hr">
             <input ref="fileInputRef" :value="fileInput" id="FileInput" type="file" multiple class="hidden"
                 @change="onFileChange"></input>
@@ -21,7 +21,7 @@
                 @focus="(e) => (e.currentTarget as HTMLInputElement)?.select()" @keyup.enter="gotoReceivePage()" />
             <button
                 class="text-xl cursor-pointer border-blue-500 text-blue-500 border-1 m-2 rounded-full px-3 hover:bg-blue-100"
-                @click="gotoReceivePage()">
+                @click.stop="gotoReceivePage()">
                 {{ receiveButtonText }}
             </button>
             <p :class="result.color">{{ result.message }}</p>
@@ -54,6 +54,14 @@ const gotoReceivePage = () => {
         return;
     }
     router.push({ name: 'receive' });
+}
+
+const clearResult = () => {
+    result.value = {
+        success: false,
+        message: '',
+        color: 'green',
+    }
 }
 
 const onFileChange = (e: Event) => {

@@ -9,7 +9,7 @@
             <article class="text-center">
                 <p>Sender Code</p>
                 <!-- mock code temporarily -->
-                <p class="text-3xl font-bold my-2">1111</p>
+                <p class="text-3xl font-bold my-2">{{ code }}</p>
             </article>
             <section class="overflow-x-auto w-full">
                 <div class="flex no-wrap w-full justify-center items-center w-[1px]">
@@ -71,6 +71,7 @@ const sendButtonTextData = ref({
     sending: 'Sending...',
     sent: 'Sent!',
 });
+const code = ref('');
 
 const receivers = ref<IReceiver[]>([
     { name: '🐸 FrogUser', id: 'frog123', sendStatus: 'default' },
@@ -91,6 +92,19 @@ const createImagePreview = (file: File): Promise<string> => {
     })
 }
 
+const generate4DigitCode = (): string => {
+    const max = 65536
+    const limit = max - (max % 10000) // 60000
+    const array = new Uint16Array(1)
+    let value = 0;
+    do {
+        crypto.getRandomValues(array)
+        value = array[0]!
+    } while (value >= limit)
+
+    return (value % 10000).toString().padStart(4, '0')
+}
+
 onMounted(async () => {
     screenWidth.value = window.innerWidth;
     if (commonStore.files.length === 0) {
@@ -104,6 +118,7 @@ onMounted(async () => {
         }
         return { file, preview };
     }));
+    code.value = generate4DigitCode();
 });
 
 </script>
