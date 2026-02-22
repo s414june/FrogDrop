@@ -33,6 +33,19 @@ const result = ref({
     color: 'text-gray-400',
 })
 
+async function waitForRoom(code: string, timeoutMs = 10_000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        const res = await fetch(`/api/code/${code}`);
+        if (res.ok) return await res.json();
+        if (res.status === 500) {
+            throw new Error("Server error while checking code. Please try again.");
+        }
+        await new Promise(r => setTimeout(r, 800));
+    }
+    throw new Error("timeout_waiting_for_room");
+}
+
 const getBrowserHint = (): string => {
     const ua = navigator.userAgent
     if (ua.includes('Edg')) return 'Edge'
@@ -66,8 +79,24 @@ const back = () => {
     router.push({ name: 'home' });
 }
 
-onMounted(() => {
+onMounted(async () => {
     commonStore.deviceHint = getDeviceHint();
+    try {
+        const res = await waitForRoom(commonStore.code);
+        if (res.ok) {
+            alert("Connected! Ready to receive files.");
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message === "timeout_waiting_for_room") {
+            result.value = {
+                success: false,
+                message: "No sender found. Please try again.",
+                color: 'text-red-500',
+            }
+        } else {
+            console.error("Unexpected error:", error);
+        }
+    };
 });
 </script>
 

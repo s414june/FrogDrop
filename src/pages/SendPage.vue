@@ -105,6 +105,47 @@ const generate4DigitCode = (): string => {
     return (value % 10000).toString().padStart(4, '0')
 }
 
+const createCodeOnRedis = async (code: string) => {
+    const res = await fetch("/api/code/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        console.error("Failed to create code on Redis:", data.error);
+        throw new Error(data.error);
+    }
+
+    return data;
+}
+
+const generateCodeAndCreate = async (): Promise<string> => {
+    const reGenerateLimit = 5;
+    let attempts = 0;
+    while (attempts < reGenerateLimit) {
+        const code = generate4DigitCode();
+        try {
+            await createCodeOnRedis(code);
+            return code;
+        } catch (error) {
+            const { status } = (error as any)?.response || {};
+            if (status === 409) { // conflict, code already exists
+                console.warn(`Code ${code} already exists. Generating a new one...`);
+                attempts++;
+                continue; // try again with a new code
+            } else {
+                throw error; // rethrow other errors
+            }
+        }
+    }
+    throw new Error("Failed to generate a unique code after multiple attempts");
+}
+
 onMounted(async () => {
     screenWidth.value = window.innerWidth;
     if (commonStore.files.length === 0) {
@@ -118,7 +159,12 @@ onMounted(async () => {
         }
         return { file, preview };
     }));
-    code.value = generate4DigitCode();
+    try {
+        code.value = await generateCodeAndCreate();
+    } catch (error) {
+        console.error("Error generating code:", error);
+        alert("Failed to generate a unique code. Please try again.");
+    }
 });
 
 </script>
