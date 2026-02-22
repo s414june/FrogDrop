@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { connectRedis } from "../_lib/redis.ts";
+import { connectRedis } from "../_lib/redis.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const redis = connectRedis();
