@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { connectRedis } from "../_lib/redis.js";
+import type { Room } from "../../shared/types/room.js";
 
 const redis = connectRedis();
 
@@ -29,7 +30,7 @@ export default async function handler(
             {
                 status: "waiting",
                 createdAt: Date.now(),
-            },
+            } as Room,
             { ex: 120 }
         );
 
